@@ -30,6 +30,10 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
     const safeExampleQr = escapeHtml(exampleQr);
     const safeExampleQrTexto = escapeHtml(exampleQrTexto);
     const safeWidth = escapeHtml(widthSm);
+    const safeExampleText = escapeHtml(exampleText);
+    const safeDefaultWidth = escapeHtml(qrDefaults?.width ?? 350);
+    const safeDefaultMargin = escapeHtml(qrDefaults?.margin ?? 1);
+    const safeDefaultEcl = escapeHtml(qrDefaults?.errorCorrectionLevel ?? 'L');
 
     return `<!doctype html>
 <html lang="es">
@@ -104,6 +108,23 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
       margin-top: 14px;
     }
     @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .formgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+    @media (min-width: 980px) { .formgrid { grid-template-columns: 1fr 160px; align-items: end; } }
+    label { display: block; font-size: 13px; color: rgba(231,234,243,0.82); margin-bottom: 6px; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.25);
+      color: rgba(231,234,243,0.95);
+      outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus { border-color: rgba(138,180,255,0.55); box-shadow: 0 0 0 3px rgba(138,180,255,0.16); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .row .actions { margin-top: 0; }
+    .kpi { display: flex; gap: 10px; flex-wrap: wrap; }
+    .note { margin-top: 10px; color: rgba(231,234,243,0.70); font-size: 13px; line-height: 1.5; }
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -161,7 +182,7 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap" id="app" data-base-url="${safeBaseUrl}" data-default-width="${safeDefaultWidth}">
     <div class="top">
       <div class="brandrow">
         <div class="title">
@@ -173,45 +194,63 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
         </div>
         <div class="meta">
           <span class="pill"><strong>Base URL</strong> <code>${safeBaseUrl}</code></span>
-          <span class="pill"><strong>QR_WIDTH</strong> <code>${escapeHtml(qrDefaults?.width ?? 350)}</code></span>
-          <span class="pill"><strong>QR_MARGIN</strong> <code>${escapeHtml(qrDefaults?.margin ?? 1)}</code></span>
-          <span class="pill"><strong>ECL</strong> <code>${escapeHtml(qrDefaults?.errorCorrectionLevel ?? 'L')}</code></span>
+          <span class="pill"><strong>QR_WIDTH</strong> <code>${safeDefaultWidth}</code></span>
+          <span class="pill"><strong>QR_MARGIN</strong> <code>${safeDefaultMargin}</code></span>
+          <span class="pill"><strong>ECL</strong> <code>${safeDefaultEcl}</code></span>
         </div>
       </div>
-      <p class="hint">Endpoints disponibles: <code>GET /generar</code>, <code>GET /qr</code>, <code>GET /qrtexto</code>. Parámetros: <code>texto</code> (obligatorio), <code>width</code> (opcional).</p>
+      <div class="row">
+        <p class="hint">Escribe un texto o URL y la página genera los links automáticamente.</p>
+        <div class="kpi">
+          <span class="pill"><strong>GET</strong> <code>/generar</code></span>
+          <span class="pill"><strong>GET</strong> <code>/qr</code></span>
+          <span class="pill"><strong>GET</strong> <code>/qrtexto</code></span>
+        </div>
+      </div>
+      <div class="formgrid">
+        <div>
+          <label for="texto">Texto / URL</label>
+          <input id="texto" type="text" value="${safeExampleText}" autocomplete="off" spellcheck="false" />
+        </div>
+        <div>
+          <label for="width">Width (px)</label>
+          <input id="width" type="number" min="1" step="1" value="${safeWidth}" />
+        </div>
+      </div>
+      <p class="note">Tip: si pegas una URL con parámetros (<code>&amp;</code>, <code>?</code>) la página se encarga de codificar <code>texto</code> automáticamente.</p>
     </div>
 
     <div class="grid">
       <section class="card">
         <h2>1) JSON con Data URL · GET /generar</h2>
         <p>Devuelve un JSON con <code>qrCodigoUrl</code> (data URL) y un <code>link</code> listo para pedir el PNG.</p>
-        <pre>${safeExampleGenerar}</pre>
+        <pre id="urlGenerar">${safeExampleGenerar}</pre>
         <div class="actions">
-          <a class="btn primary" href="${safeExampleGenerar}">Abrir</a>
-          <button class="btn" type="button" data-copy="${safeExampleGenerar}">Copiar URL</button>
+          <a class="btn primary" id="openGenerar" href="${safeExampleGenerar}">Abrir</a>
+          <button class="btn" id="copyGenerar" type="button" data-copy="${safeExampleGenerar}">Copiar URL</button>
         </div>
       </section>
 
       <section class="card">
         <h2>2) PNG directo · GET /qr</h2>
         <p>Devuelve la imagen PNG directamente (ideal para <code>&lt;img&gt;</code> o descargas).</p>
-        <pre>${safeExampleQr}</pre>
+        <pre id="urlQr">${safeExampleQr}</pre>
         <div class="actions">
-          <a class="btn primary" href="${safeExampleQr}">Abrir</a>
-          <button class="btn" type="button" data-copy="${safeExampleQr}">Copiar URL</button>
+          <a class="btn primary" id="openQr" href="${safeExampleQr}">Abrir</a>
+          <button class="btn" id="copyQr" type="button" data-copy="${safeExampleQr}">Copiar URL</button>
         </div>
         <div class="imgwrap">
-          <img src="${safeExampleQr}" width="${safeWidth}" height="${safeWidth}" alt="QR" />
+          <img id="qrImg" src="${safeExampleQr}" width="${safeWidth}" height="${safeWidth}" alt="QR" />
         </div>
       </section>
 
       <section class="card">
         <h2>3) JSON con base64 · GET /qrtexto</h2>
         <p>Devuelve un JSON con <code>codigo64</code> (base64 del PNG sin el prefijo <code>data:</code>).</p>
-        <pre>${safeExampleQrTexto}</pre>
+        <pre id="urlQrTexto">${safeExampleQrTexto}</pre>
         <div class="actions">
-          <a class="btn primary" href="${safeExampleQrTexto}">Abrir</a>
-          <button class="btn" type="button" data-copy="${safeExampleQrTexto}">Copiar URL</button>
+          <a class="btn primary" id="openQrTexto" href="${safeExampleQrTexto}">Abrir</a>
+          <button class="btn" id="copyQrTexto" type="button" data-copy="${safeExampleQrTexto}">Copiar URL</button>
         </div>
       </section>
 
@@ -219,27 +258,110 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
         <h2>Parámetros</h2>
         <pre>texto: obligatorio (URL o texto)
 width: opcional (número positivo, px)</pre>
-        <p class="hint">Ejemplo de texto sugerido: <code>${escapeHtml(exampleText)}</code></p>
+        <p class="hint">El valor de <code>width</code> de la página no cambia el default del servidor; solo se usa para armar la URL.</p>
       </section>
     </div>
 
     <div class="footer">qr-generator-api</div>
   </div>
   <script>
-    const buttons = document.querySelectorAll('[data-copy]');
-    for (const btn of buttons) {
-      btn.addEventListener('click', async () => {
-        const text = btn.getAttribute('data-copy') || '';
-        const original = btn.textContent;
-        try {
-          await navigator.clipboard.writeText(text);
-          btn.textContent = 'Copiado';
-        } catch {
-          btn.textContent = 'No se pudo copiar';
-        }
-        setTimeout(() => { btn.textContent = original; }, 900);
-      });
+    const root = document.getElementById('app');
+    const baseUrl = root?.getAttribute('data-base-url') || '';
+    const defaultWidth = Number.parseInt(root?.getAttribute('data-default-width') || '350', 10) || 350;
+
+    const inputTexto = document.getElementById('texto');
+    const inputWidth = document.getElementById('width');
+
+    const elUrlGenerar = document.getElementById('urlGenerar');
+    const elUrlQr = document.getElementById('urlQr');
+    const elUrlQrTexto = document.getElementById('urlQrTexto');
+
+    const openGenerar = document.getElementById('openGenerar');
+    const openQr = document.getElementById('openQr');
+    const openQrTexto = document.getElementById('openQrTexto');
+
+    const copyGenerar = document.getElementById('copyGenerar');
+    const copyQr = document.getElementById('copyQr');
+    const copyQrTexto = document.getElementById('copyQrTexto');
+
+    const qrImg = document.getElementById('qrImg');
+
+    function parseWidth(value) {
+      const n = Number.parseInt(String(value || ''), 10);
+      if (!Number.isFinite(n) || n <= 0) return defaultWidth;
+      return n;
     }
+
+    function buildUrls() {
+      const texto = String(inputTexto?.value || '').trim();
+      const width = parseWidth(inputWidth?.value);
+      const encodedTexto = encodeURIComponent(texto || ' ');
+
+      const generar = \`\${baseUrl}/generar?texto=\${encodedTexto}&width=\${width}\`;
+      const qr = \`\${baseUrl}/qr?texto=\${encodedTexto}&width=\${width}\`;
+      const qrtexto = \`\${baseUrl}/qrtexto?texto=\${encodedTexto}&width=\${width}\`;
+
+      if (elUrlGenerar) elUrlGenerar.textContent = generar;
+      if (elUrlQr) elUrlQr.textContent = qr;
+      if (elUrlQrTexto) elUrlQrTexto.textContent = qrtexto;
+
+      if (openGenerar) openGenerar.setAttribute('href', generar);
+      if (openQr) openQr.setAttribute('href', qr);
+      if (openQrTexto) openQrTexto.setAttribute('href', qrtexto);
+
+      if (copyGenerar) copyGenerar.setAttribute('data-copy', generar);
+      if (copyQr) copyQr.setAttribute('data-copy', qr);
+      if (copyQrTexto) copyQrTexto.setAttribute('data-copy', qrtexto);
+
+      if (qrImg) {
+        qrImg.setAttribute('src', qr);
+        qrImg.setAttribute('width', String(width));
+        qrImg.setAttribute('height', String(width));
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('texto', texto);
+      url.searchParams.set('width', String(width));
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    function initFromQuery() {
+      const url = new URL(window.location.href);
+      const texto = url.searchParams.get('texto');
+      const width = url.searchParams.get('width');
+      if (texto !== null && inputTexto) inputTexto.value = texto;
+      if (width !== null && inputWidth) inputWidth.value = String(parseWidth(width));
+    }
+
+    function bindCopyButtons() {
+      const buttons = document.querySelectorAll('[data-copy]');
+      for (const btn of buttons) {
+        btn.addEventListener('click', async () => {
+          const text = btn.getAttribute('data-copy') || '';
+          const original = btn.textContent;
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = 'Copiado';
+          } catch {
+            btn.textContent = 'No se pudo copiar';
+          }
+          setTimeout(() => { btn.textContent = original; }, 900);
+        });
+      }
+    }
+
+    let t = null;
+    function scheduleBuild() {
+      if (t) clearTimeout(t);
+      t = setTimeout(() => buildUrls(), 100);
+    }
+
+    initFromQuery();
+    buildUrls();
+    bindCopyButtons();
+
+    if (inputTexto) inputTexto.addEventListener('input', scheduleBuild);
+    if (inputWidth) inputWidth.addEventListener('input', scheduleBuild);
   </script>
 </body>
 </html>`;

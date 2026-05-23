@@ -31,7 +31,7 @@ npm start
 
 El servidor queda escuchando en:
 
-- `http://localhost:3002` (o el puerto definido en `PORT`)
+- `https://qr-generator-api-1z0m.onrender.com/`
 
 Ejemplos de ejecución con variables de entorno:
 
@@ -57,7 +57,7 @@ PORT=39001 npm start
 
 Base URL (local):
 
-- `http://localhost:3002`
+- `https://qr-generator-api-1z0m.onrender.com/`
 
 ### Parámetros comunes
 
@@ -73,13 +73,13 @@ Devuelve un JSON con el QR como Data URL (útil para frontends) y un `link` list
 Ejemplo (navegador):
 
 ```text
-http://localhost:3002/generar?texto=www.google.com&width=150
+https://qr-generator-api-1z0m.onrender.com/generar?texto=www.google.com&width=150
 ```
 
 Ejemplo (curl):
 
 ```bash
-curl "http://localhost:3002/generar?texto=hola%20mundo&width=250"
+curl "https://qr-generator-api-1z0m.onrender.com/generar?texto=hola%20mundo&width=250"
 ```
 
 Respuesta (JSON):
@@ -101,13 +101,13 @@ Devuelve directamente la imagen PNG. Útil para incrustar en HTML o descargar.
 Ejemplo (abrir en el navegador):
 
 ```text
-http://localhost:3002/qr?texto=www.google.com&width=300
+https://qr-generator-api-1z0m.onrender.com/qr?texto=www.google.com&width=300
 ```
 
 Ejemplo (guardar a archivo):
 
 ```bash
-curl -o qr.png "http://localhost:3002/qr?texto=www.google.com&width=300"
+curl -o qr.png "https://qr-generator-api-1z0m.onrender.com/qr?texto=www.google.com&width=300"
 ```
 
 Respuesta:
@@ -129,7 +129,7 @@ Devuelve un JSON con `codigo64` (base64 del PNG sin `data:image/png;base64,`). �
 Ejemplo:
 
 ```text
-http://localhost:3002/qrtexto?texto=hola&width=250
+https://qr-generator-api-1z0m.onrender.com/qrtexto?texto=hola&width=250
 ```
 
 Respuesta (JSON):

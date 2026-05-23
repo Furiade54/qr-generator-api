@@ -112,6 +112,31 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
     @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr; } }
     .formgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
     @media (min-width: 980px) { .formgrid { grid-template-columns: 1fr 160px; align-items: end; } }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (min-width: 980px) { .hero { grid-template-columns: 1fr 320px; align-items: start; } }
+    .heroRight {
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.18);
+      padding: 12px;
+    }
+    .heroRight .label { font-size: 12px; color: rgba(231,234,243,0.72); margin-bottom: 10px; }
+    .heroQr {
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: var(--panel2);
+    }
+    .heroQr img {
+      box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+    }
     label { display: block; font-size: 13px; color: rgba(231,234,243,0.82); margin-bottom: 6px; }
     input[type="text"], input[type="number"] {
       width: 100%;
@@ -208,6 +233,7 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
       .pill { max-width: 100%; }
       .pill code { word-break: break-all; }
       .formgrid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
       .actions { flex-direction: column; }
       .btn { width: 100%; justify-content: center; }
       .callout { align-items: stretch; }
@@ -234,34 +260,44 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
           <span class="pill"><strong>ECL</strong> <code>${safeDefaultEcl}</code></span>
         </div>
       </div>
-      <div class="row">
-        <p class="hint">Escribe un texto o URL y la página genera los links automáticamente.</p>
-        <div class="kpi">
-          <span class="pill"><strong>GET</strong> <code>/generar</code></span>
-          <span class="pill"><strong>GET</strong> <code>/qr</code></span>
-          <span class="pill"><strong>GET</strong> <code>/qrtexto</code></span>
+      <div class="hero">
+        <div class="heroLeft">
+          <div class="row">
+            <p class="hint">Escribe un texto o URL y la página genera los links automáticamente.</p>
+            <div class="kpi">
+              <span class="pill"><strong>GET</strong> <code>/generar</code></span>
+              <span class="pill"><strong>GET</strong> <code>/qr</code></span>
+              <span class="pill"><strong>GET</strong> <code>/qrtexto</code></span>
+            </div>
+          </div>
+          <div class="formgrid">
+            <div>
+              <label for="texto">Texto / URL</label>
+              <input id="texto" type="text" value="${safeExampleText}" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="width">Width (px)</label>
+              <input id="width" type="number" min="1" step="1" value="${safeWidth}" />
+            </div>
+          </div>
+          <div class="callout">
+            <div class="left">
+              <div class="label">URL para integrar (PNG directo)</div>
+              <code id="integrationUrl">${safeExampleQr}</code>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="copyIntegration" type="button" data-copy="${safeExampleQr}">Copiar</button>
+            </div>
+          </div>
+          <p class="note">Tip: si pegas una URL con parámetros (<code>&amp;</code>, <code>?</code>) la página se encarga de codificar <code>texto</code> automáticamente.</p>
         </div>
+        <aside class="heroRight" aria-label="Vista previa del QR">
+          <div class="label">Vista previa (PNG)</div>
+          <div class="heroQr">
+            <img id="qrHeroImg" src="${safeExampleQr}" width="${safeWidth}" height="${safeWidth}" alt="QR" />
+          </div>
+        </aside>
       </div>
-      <div class="formgrid">
-        <div>
-          <label for="texto">Texto / URL</label>
-          <input id="texto" type="text" value="${safeExampleText}" autocomplete="off" spellcheck="false" />
-        </div>
-        <div>
-          <label for="width">Width (px)</label>
-          <input id="width" type="number" min="1" step="1" value="${safeWidth}" />
-        </div>
-      </div>
-      <div class="callout">
-        <div class="left">
-          <div class="label">URL para integrar (PNG directo)</div>
-          <code id="integrationUrl">${safeExampleQr}</code>
-        </div>
-        <div class="actions">
-          <button class="btn primary" id="copyIntegration" type="button" data-copy="${safeExampleQr}">Copiar</button>
-        </div>
-      </div>
-      <p class="note">Tip: si pegas una URL con parámetros (<code>&amp;</code>, <code>?</code>) la página se encarga de codificar <code>texto</code> automáticamente.</p>
     </div>
 
     <div class="grid">
@@ -350,6 +386,7 @@ width: opcional (número positivo, px)</pre>
     const copyHtmlSnippet = document.getElementById('copyHtmlSnippet');
 
     const qrImg = document.getElementById('qrImg');
+    const qrHeroImg = document.getElementById('qrHeroImg');
 
     function parseWidth(value) {
       const n = Number.parseInt(String(value || ''), 10);
@@ -389,6 +426,13 @@ width: opcional (número positivo, px)</pre>
         qrImg.setAttribute('src', qr);
         qrImg.setAttribute('width', String(width));
         qrImg.setAttribute('height', String(width));
+      }
+
+      if (qrHeroImg) {
+        const heroSize = Math.max(160, Math.min(260, width));
+        qrHeroImg.setAttribute('src', qr);
+        qrHeroImg.setAttribute('width', String(heroSize));
+        qrHeroImg.setAttribute('height', String(heroSize));
       }
 
       const url = new URL(window.location.href);

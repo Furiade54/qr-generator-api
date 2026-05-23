@@ -161,6 +161,8 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
       color: rgba(231,234,243,0.95);
       font-size: 13px;
       line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
     .btn {
@@ -194,8 +196,24 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
       background: var(--panel2);
       border: 1px solid var(--border);
     }
-    img { image-rendering: pixelated; border-radius: 8px; background: #ffffff; padding: 10px; }
+    img { image-rendering: pixelated; border-radius: 8px; background: #ffffff; padding: 10px; max-width: 100%; height: auto; }
     .footer { margin-top: 14px; color: rgba(231,234,243,0.55); font-size: 12px; text-align: center; }
+    @media (max-width: 520px) {
+      body { padding: 18px 12px 28px; }
+      .top { padding: 14px 12px 12px; }
+      .brandrow { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .logo { width: 36px; height: 36px; border-radius: 11px; }
+      h1 { font-size: 20px; }
+      .meta { width: 100%; }
+      .pill { max-width: 100%; }
+      .pill code { word-break: break-all; }
+      .formgrid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+      .callout { align-items: stretch; }
+      .callout .actions { width: 100%; }
+      .imgwrap { padding: 12px; }
+    }
   </style>
 </head>
 <body>

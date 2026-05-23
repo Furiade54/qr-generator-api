@@ -34,6 +34,8 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
     const safeDefaultWidth = escapeHtml(qrDefaults?.width ?? 350);
     const safeDefaultMargin = escapeHtml(qrDefaults?.margin ?? 1);
     const safeDefaultEcl = escapeHtml(qrDefaults?.errorCorrectionLevel ?? 'L');
+    const safeTemplateQr = escapeHtml(`${baseUrl}/qr?texto={TEXTO_URL_ENCODED}&width={WIDTH}`);
+    const safeTemplateGenerar = escapeHtml(`${baseUrl}/generar?texto={TEXTO_URL_ENCODED}&width={WIDTH}`);
 
     return `<!doctype html>
 <html lang="es">
@@ -125,6 +127,21 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
     .row .actions { margin-top: 0; }
     .kpi { display: flex; gap: 10px; flex-wrap: wrap; }
     .note { margin-top: 10px; color: rgba(231,234,243,0.70); font-size: 13px; line-height: 1.5; }
+    .callout {
+      margin-top: 12px;
+      border-radius: 14px;
+      padding: 12px 12px;
+      border: 1px solid rgba(138,180,255,0.22);
+      background: rgba(138,180,255,0.10);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .callout .left { display: grid; gap: 6px; }
+    .callout .label { font-size: 12px; color: rgba(231,234,243,0.75); }
+    .callout code { font-size: 13px; }
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -217,10 +234,36 @@ function renderLandingPage({ baseUrl, qrDefaults }) {
           <input id="width" type="number" min="1" step="1" value="${safeWidth}" />
         </div>
       </div>
+      <div class="callout">
+        <div class="left">
+          <div class="label">URL para integrar (PNG directo)</div>
+          <code id="integrationUrl">${safeExampleQr}</code>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="copyIntegration" type="button" data-copy="${safeExampleQr}">Copiar</button>
+        </div>
+      </div>
       <p class="note">Tip: si pegas una URL con parámetros (<code>&amp;</code>, <code>?</code>) la página se encarga de codificar <code>texto</code> automáticamente.</p>
     </div>
 
     <div class="grid">
+      <section class="card">
+        <h2>Integración rápida</h2>
+        <p>Puedes consumir el PNG directamente o pedir un Data URL en JSON.</p>
+        <pre id="templateQr">${safeTemplateQr}</pre>
+        <div class="actions">
+          <button class="btn" type="button" data-copy="${safeTemplateQr}">Copiar plantilla PNG</button>
+        </div>
+        <pre id="templateGenerar">${safeTemplateGenerar}</pre>
+        <div class="actions">
+          <button class="btn" type="button" data-copy="${safeTemplateGenerar}">Copiar plantilla JSON</button>
+        </div>
+        <pre id="htmlSnippet">&lt;img src="${safeExampleQr}" width="${safeWidth}" height="${safeWidth}" alt="QR" /&gt;</pre>
+        <div class="actions">
+          <button class="btn" id="copyHtmlSnippet" type="button" data-copy="&lt;img src=&quot;${safeExampleQr}&quot; width=&quot;${safeWidth}&quot; height=&quot;${safeWidth}&quot; alt=&quot;QR&quot; /&gt;">Copiar HTML</button>
+        </div>
+      </section>
+
       <section class="card">
         <h2>1) JSON con Data URL · GET /generar</h2>
         <p>Devuelve un JSON con <code>qrCodigoUrl</code> (data URL) y un <code>link</code> listo para pedir el PNG.</p>
@@ -283,6 +326,10 @@ width: opcional (número positivo, px)</pre>
     const copyGenerar = document.getElementById('copyGenerar');
     const copyQr = document.getElementById('copyQr');
     const copyQrTexto = document.getElementById('copyQrTexto');
+    const integrationUrl = document.getElementById('integrationUrl');
+    const copyIntegration = document.getElementById('copyIntegration');
+    const htmlSnippet = document.getElementById('htmlSnippet');
+    const copyHtmlSnippet = document.getElementById('copyHtmlSnippet');
 
     const qrImg = document.getElementById('qrImg');
 
@@ -312,6 +359,13 @@ width: opcional (número positivo, px)</pre>
       if (copyGenerar) copyGenerar.setAttribute('data-copy', generar);
       if (copyQr) copyQr.setAttribute('data-copy', qr);
       if (copyQrTexto) copyQrTexto.setAttribute('data-copy', qrtexto);
+
+      if (integrationUrl) integrationUrl.textContent = qr;
+      if (copyIntegration) copyIntegration.setAttribute('data-copy', qr);
+
+      const snippet = \`<img src="\${qr}" width="\${width}" height="\${width}" alt="QR" />\`;
+      if (htmlSnippet) htmlSnippet.textContent = snippet;
+      if (copyHtmlSnippet) copyHtmlSnippet.setAttribute('data-copy', snippet);
 
       if (qrImg) {
         qrImg.setAttribute('src', qr);
